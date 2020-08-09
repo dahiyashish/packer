@@ -10,7 +10,7 @@ main() {
     echo "Copy Drupal-${DRUPAL_VERSION} Site Configuration"
     sudo cp -pR ${WORKING_DIR}/conf/php/php.ini /etc/php/${PHP_FPM_VERSION}/fpm/php.ini
     sudo rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-    sudo cp -pR ${WORKING_DIR}/conf/nginx/custom-phpfpmsock-nonssl.conf /etc/nginx/sites-available/drupal
+    sudo cp -pR ${WORKING_DIR}/conf/nginx/custom-phpfpmsock-ssl.conf /etc/nginx/sites-available/drupal
     sudo ln -s /etc/nginx/sites-available/drupal /etc/nginx/sites-enabled/
     echo "Installing Database"
     sudo -E apt-get -q -y install mysql-server-${MYSQL_SERVER_VERSION}
@@ -23,10 +23,8 @@ main() {
     echo "Creating Self Signed SSL Certificates"
     sudo add-apt-repository ppa:certbot/certbot
     sudo apt-get update
-    sudo apt-get install python-certbot-nginx
+    sudo apt-get install python-certbot-nginx -y
     sudo certbot --nginx  --non-interactive --agree-tos -m ${EMAIL_ID} -d ${DOMAIN_NAME}
-    sudo openssl req -x509 -nodes -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=${DOMAIN_NAME}" -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/drupal.key -out /etc/nginx/ssl/drupal.crt
-    sudo chmod 600 /etc/nginx/ssl/drupal.key
     echo "Nginx and PHP-FPM Configuration validation.."
     sudo nginx -t
     sudo php-fpm${PHP_FPM_VERSION} -tt
