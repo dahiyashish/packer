@@ -1,0 +1,46 @@
+{
+  "variables": {
+      "aws_profile": "{{env `AWS_PROFILE`}}"
+  },
+  "builders": [
+    {
+      "ami_name": "drupal-linux-aws-demo-{{timestamp}}",
+      "tags": {
+        "OS_Version": "Ubuntu",
+        "Release": "Latest",
+        "Base_AMI_Name": "{{ .SourceAMIName }}",
+        "Extra": "{{ .SourceAMITags.TagName }}"
+      },
+      "instance_type": "t2.micro",
+      "profile": "{{ user `aws_profile`}}",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "owners": ["099720109477"],
+        "most_recent": true
+      },
+      "ssh_username": "ubuntu",
+      "ssh_keypair_name":"packer",
+      "ssh_private_key_file":"../../../AWS/auth/packer.pem",
+      "type": "amazon-ebs"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": ".././drupal.tar.gz",
+      "destination": "/home/ubuntu/"
+    },
+    {
+      "type": "shell",
+      "inline": ["cd /home/ubuntu/ && tar -xzvf drupal.tar.gz " ,"ls -lrth /home/ubuntu/"]
+    },
+    {
+      "type": "shell",
+      "script": "./drupal.sh"
+    }
+  ]
+}
