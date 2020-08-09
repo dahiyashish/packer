@@ -21,7 +21,10 @@ main() {
     sudo mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "grant all privileges on ${DRUPAL_DATABASE}.* to ${DRUPAL_USER}@localhost identified by '${DRUPAL_PASSWORD}';"
     sudo mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "flush privileges;"
     echo "Creating Self Signed SSL Certificates"
-    sudo mkdir -p /etc/nginx/ssl && cd /etc/nginx/ssl
+    sudo add-apt-repository ppa:certbot/certbot
+    sudo apt-get update
+    sudo apt-get install python-certbot-nginx
+    sudo certbot --nginx  --non-interactive --agree-tos -m ${EMAIL_ID} -d ${DOMAIN_NAME}
     sudo openssl req -x509 -nodes -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=${DOMAIN_NAME}" -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/drupal.key -out /etc/nginx/ssl/drupal.crt
     sudo chmod 600 /etc/nginx/ssl/drupal.key
     echo "Nginx and PHP-FPM Configuration validation.."
